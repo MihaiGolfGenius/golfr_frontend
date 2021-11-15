@@ -17,18 +17,48 @@ const Profile = () => {
   const [error, setMessage] = useState('')
   const [name, setName] = useState('')
 
+  // Set the user name on screen.
   useEffect(() => {
-    // You also have to treat the case when user has no scores.
+
+    // Request the user name if the user has no scores.
+    const fetchName = async() => {
+      const USER_NAME_URL = `${process.env.NEXT_PUBLIC_API_URL}/user`
+      let response = await fetch(USER_NAME_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id
+        })
+      })
+      response = await response.json()
+      if (response.errors) {
+        setName("Unknown User Id, something went wrong.")
+      } else {
+        setName(response.user_name)
+      }
+    }
+
+    // Effect logic, execute only if scores array changes.
     if (scores.length > 0) {
       setName(scores[0].user_name)
+    } else if (!!id) {
+      // This branch has not been tested yet.
+      fetchName().catch(e => alert(e))
     }
   }, [scores])
 
+
+  // Set the scores array of a user. If something goes wrong, the "error" state
+  // is set.
   useEffect(() => {
     if (id === null || id === undefined) {
       return;
     }
   
+    // Request the scores of a specific user.
     const fetchData = async () => {
       let response = await fetch(USER_SCORES_URL, {
         method: 'POST',
@@ -49,6 +79,7 @@ const Profile = () => {
       }
     }
 
+    // Effect Logic
     fetchData().catch(e => alert(e))
   }, [id])
 
