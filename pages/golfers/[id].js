@@ -6,22 +6,20 @@ import ScoreCard from '../../components/ScoreCard'
 import { useEffect, useState } from 'react'
 import { getToken } from '../../lib/userAuth'
 
-// Problema 1: nu gaseste setMessage / setScores
-// Problema 2: tot trimite payload id: null 
 
-const Profile = () => {
+function Profile () {
   const router = useRouter()
-  const {id} = router.query
+  const { id } = router.query
 
-  const [scores, setScores] = useState([])
-  const [error, setMessage] = useState('')
-  const [name, setName] = useState('')
+  const [ scores, setScores ] = useState([ ])
+  const [ error, setMessage ] = useState('')
+  const [ name, setName ] = useState('')
 
   // Set the user name on screen.
   useEffect(() => {
 
     // Request the user name if the user has no scores.
-    const fetchName = async() => {
+    const fetchName = async () => {
       const USER_NAME_URL = `${process.env.NEXT_PUBLIC_API_URL}/user`
       let response = await fetch(USER_NAME_URL, {
         method: 'POST',
@@ -30,12 +28,12 @@ const Profile = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: id
-        })
+          id: id,
+        }),
       })
       response = await response.json()
       if (response.errors) {
-        setName("Unknown User Id, something went wrong.")
+        setName('Unknown User Id, something went wrong.')
       } else {
         setName(response.user_name)
       }
@@ -48,16 +46,16 @@ const Profile = () => {
       // This branch has not been tested yet.
       fetchName().catch(e => alert(e))
     }
-  }, [scores])
+  }, [ scores, id ])
 
 
   // Set the scores array of a user. If something goes wrong, the "error" state
   // is set.
   useEffect(() => {
     if (id === null || id === undefined) {
-      return;
+      return
     }
-  
+
     // Request the scores of a specific user.
     const fetchData = async () => {
       let response = await fetch(USER_SCORES_URL, {
@@ -67,8 +65,8 @@ const Profile = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: id
-        })
+          user_id: id,
+        }),
       })
       response = await response.json()
       if (response.errors) {
@@ -81,13 +79,13 @@ const Profile = () => {
 
     // Effect Logic
     fetchData().catch(e => alert(e))
-  }, [id])
+  }, [ id ])
 
   return (
     <Layout>
       <>
         {
-          error ? 
+          error ?
             error
             :
             <>
@@ -104,7 +102,7 @@ const Profile = () => {
                   />
                 ))
               }
-            </>         
+            </>
         }
       </>
     </Layout>
